@@ -6,7 +6,7 @@ import Fixed from "../components/views/Fixed/Fixed";
 import Home from "../components/views/Home/Home";
 import Login from "../components/views/Login/Login";
 import NotFound from "../components/views/Errors/NotFound";
-// import ProtectedRoute from "../router/ProtectedRoute";
+import ProtectedRoute from "../router/ProtectedRoute";
 import PublicRoute from "../router/PublicRoute";
 import React from "react";
 import RecoverPassword from "../components/views/RecoverPassword/RecoverPassword";
@@ -17,21 +17,21 @@ const Routes = () => {
   return (
     <BrowserRouter>
       <Switch>
-        <Route path="/" exact>
+        <ProtectedRoute path="/" exact>
           <DefaultLayout>
             <Home />
           </DefaultLayout>
-        </Route>
-        <Route path="/variable">
+        </ProtectedRoute>
+        <ProtectedRoute path="/variable">
           <DefaultLayout>
             <Variable />
           </DefaultLayout>
-        </Route>
-        <Route path="/fixed">
+        </ProtectedRoute>
+        <ProtectedRoute path="/fixed">
           <DefaultLayout>
             <Fixed />
           </DefaultLayout>
-        </Route>
+        </ProtectedRoute>
         <PublicRoute path="/login">
           <BasicLayout>
             <Login />

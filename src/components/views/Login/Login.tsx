@@ -1,6 +1,7 @@
 import "../../common/Logo/Logo.css";
 
 import { Button, Col, Input, Row, Typography } from "antd";
+import { Controller, useForm } from "react-hook-form";
 import {
   EyeInvisibleOutlined,
   EyeTwoTone,
@@ -12,7 +13,6 @@ import { Link } from "react-router-dom";
 import { ReactComponent as Logo } from "../../common/Logo/logo.svg";
 import React from "react";
 import { login as loginValidator } from "../../../validators/User";
-import { useForm } from "react-hook-form";
 import useLogin from "../../../hooks/useLogin";
 import useScreenEnter from "../../../hooks/useScreenEnter";
 import { yupResolver } from "@hookform/resolvers";
@@ -25,10 +25,15 @@ interface LoginForm {
 }
 
 const Login: React.FC = () => {
-  const { register, handleSubmit, errors, reset } = useForm<LoginForm>({
+  const { handleSubmit, errors, reset, control } = useForm<LoginForm>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
     resolver: yupResolver(loginValidator),
   });
   const [animation, setAnimation] = React.useState("");
+  const [serverError, setServerError] = React.useState("");
   const loginUser = useLogin();
   const ref = React.createRef<SVGSVGElement>();
 
@@ -40,33 +45,12 @@ const Login: React.FC = () => {
 
   const onSubmit = async (data: LoginForm) => {
     try {
-      let authData = await loginUser(data, "/create");
-      console.log("login successfully with payload-", authData);
-      reset({
-        email: "",
-        password: "",
-      });
+      await loginUser(data, "/create");
+      reset();
     } catch (error) {
-      console.log("Login Failed!", error);
+      setServerError(!!error.message ? error.message : "");
     }
   };
-
-  if (false) {
-    return (
-      <div>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <input type="text" name="email" ref={register} />
-          <p>{errors.email?.message}</p>
-
-          <label>Password</label>
-          <input type="password" name="password" ref={register} />
-          <p>{errors.password?.message}</p>
-
-          <button type="submit">Enter</button>
-        </form>
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
@@ -84,31 +68,44 @@ const Login: React.FC = () => {
       </Row>
       <Row gutter={[0, 24]}>
         <Col xs={24}>
-          <Input
-            prefix={<UserOutlined />}
-            type="text"
+          <Controller
+            as={
+              <Input
+                prefix={<UserOutlined />}
+                type="text"
+                placeholder="Email or username"
+                autoFocus={true}
+              />
+            }
             name="email"
-            placeholder="Email or username"
-            autoFocus={true}
-            ref={register}
+            control={control}
           />
+
           <Text type="danger">{errors.email?.message}</Text>
         </Col>
       </Row>
       <Row gutter={[0, 24]}>
         <Col xs={24}>
-          <Input.Password
-            prefix={<LockOutlined />}
-            iconRender={(visible) =>
-              visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+          <Controller
+            as={
+              <Input.Password
+                prefix={<LockOutlined />}
+                iconRender={(visible) =>
+                  visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                }
+                type="password"
+                placeholder="Password"
+              />
             }
-            type="password"
             name="password"
-            placeholder="Password"
-            ref={register}
+            control={control}
           />
+
           <Text type="danger">{errors.password?.message}</Text>
         </Col>
+      </Row>
+      <Row gutter={[0, 24]}>
+        <Text type="danger">{serverError}</Text>
       </Row>
       <Row gutter={[0, 24]}>
         <Col xs={24}>

@@ -1,6 +1,7 @@
 import "../../common/Logo/Logo.css";
 
 import { Button, Col, Input, Row, Typography } from "antd";
+import { Controller, useForm } from "react-hook-form";
 import {
   EyeInvisibleOutlined,
   EyeTwoTone,
@@ -12,7 +13,6 @@ import { Link } from "react-router-dom";
 import { ReactComponent as Logo } from "../../common/Logo/logo.svg";
 import React from "react";
 import { create as createUserValidator } from "../../../validators/User";
-import { useForm } from "react-hook-form";
 import useRegister from "../../../hooks/useRegister";
 import useScreenEnter from "../../../hooks/useScreenEnter";
 import { yupResolver } from "@hookform/resolvers";
@@ -26,9 +26,16 @@ interface CreateForm {
 }
 
 const Register: React.FC = () => {
-  const { register, handleSubmit, errors, reset } = useForm<CreateForm>({
+  const { handleSubmit, errors, reset, control } = useForm<CreateForm>({
+    defaultValues: {
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
     resolver: yupResolver(createUserValidator),
   });
+  
+  const [serverError, setServerError] = React.useState("");
   const [animation, setAnimation] = React.useState("");
   const createUser = useRegister();
 
@@ -41,38 +48,13 @@ const Register: React.FC = () => {
   });
   const onSubmit = async (data: CreateForm) => {
     try {
-      let authData = await createUser(data);
-      console.log("User created successfully with payload-", authData);
-      reset({
-        email: "",
-        password: "",
-        confirmPassword: "",
-      });
+      await createUser(data);
+      reset();
     } catch (error) {
-      console.log("Login Failed!", error);
+      setServerError(!!error.message ? error.message : "");
     }
   };
-  if (false) {
-    return (
-      <div>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <label>Email</label>
-          <input type="text" name="email" ref={register} />
-          <p>{errors.email?.message}</p>
 
-          <label>Password</label>
-          <input type="password" name="password" ref={register} />
-          <p>{errors.password?.message}</p>
-
-          <label>Confirm password</label>
-          <input type="password" name="confirmPassword" ref={register} />
-          <p>{errors.confirmPassword?.message}</p>
-
-          <button type="submit">Ingresar</button>
-        </form>
-      </div>
-    );
-  }
   return (
     <form>
       <Row justify="center" align="middle">
@@ -89,46 +71,63 @@ const Register: React.FC = () => {
       </Row>
       <Row gutter={[0, 24]}>
         <Col xs={24}>
-          <Input
-            prefix={<UserOutlined />}
-            type="text"
+          <Controller
+            as={
+              <Input
+                prefix={<UserOutlined />}
+                type="text"
+                placeholder="Email or username"
+                autoFocus={true}
+              />
+            }
             name="email"
-            placeholder="Email or username"
-            autoFocus={true}
-            ref={register}
+            control={control}
           />
           <Text type="danger">{errors.email?.message}</Text>
         </Col>
       </Row>
       <Row gutter={[0, 24]}>
         <Col xs={24}>
-          <Input.Password
-            prefix={<LockOutlined />}
-            iconRender={(visible) =>
-              visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+          <Controller
+            as={
+              <Input.Password
+                prefix={<LockOutlined />}
+                iconRender={(visible) =>
+                  visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                }
+                type="password"
+                placeholder="Password"
+              />
             }
-            type="password"
             name="password"
-            placeholder="Password"
-            ref={register}
+            control={control}
           />
+
           <Text type="danger">{errors.password?.message}</Text>
         </Col>
       </Row>
       <Row gutter={[0, 24]}>
         <Col xs={24}>
-          <Input.Password
-            prefix={<LockOutlined />}
-            iconRender={(visible) =>
-              visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+          <Controller
+            as={
+              <Input.Password
+                prefix={<LockOutlined />}
+                iconRender={(visible) =>
+                  visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
+                }
+                type="password"
+                placeholder="Confirm password"
+              />
             }
-            type="password"
             name="confirmPassword"
-            placeholder="Confirm password"
-            ref={register}
+            control={control}
           />
+
           <Text type="danger">{errors.confirmPassword?.message}</Text>
         </Col>
+      </Row>
+      <Row gutter={[0, 24]}>
+        <Text type="danger">{serverError}</Text>
       </Row>
       <Row gutter={[0, 24]}>
         <Button

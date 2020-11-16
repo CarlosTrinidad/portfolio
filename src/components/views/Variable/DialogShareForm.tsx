@@ -11,11 +11,15 @@ import {
   Typography,
 } from "antd";
 import { Controller, useForm } from "react-hook-form";
+import {
+  notificationError,
+  notificationSuccess,
+} from "../../common/Notification/notification";
 
 import { create as CreateValidator } from "../../../validators/Shares";
 import React from "react";
 import { SelectProps } from "antd/es/select";
-import { notificationError } from "../../common/Notification/notification";
+import { useVariableActions } from "../../../hooks/useVariable";
 import yFinanceApi from "../../../api/YahooFinance";
 import { yupResolver } from "@hookform/resolvers";
 
@@ -24,7 +28,7 @@ const { Option } = Select;
 
 interface DialogShare {
   visible: boolean;
-  handleOk: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  handleOk: (e: React.MouseEvent<HTMLElement, MouseEvent> | null) => void;
   handleCancel: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   defaultValues: {
     id: any;
@@ -112,22 +116,43 @@ const DialogShareForm = ({
   handleCancel,
   defaultValues,
 }: DialogShare) => {
-  const { handleSubmit, errors, control, setValue, reset } = useForm<
-    ShareFields
+  const { handleSubmit, errors, control, setValue, reset, watch } = useForm<
+  ShareFields
   >({
     resolver: yupResolver(CreateValidator),
     defaultValues: defaultValues,
   });
-
+  
   const [options, setOptions] = React.useState<SelectProps<object>["options"]>(
     []
   );
   const [loadingSymbols, setLoadingSymbols] = React.useState<boolean>(false);
-
-  const onSubmit = async (data: ShareFields) => {
-    console.log(data);
-    reset();
-  };
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const actions = useVariableActions();
+  const metadata = watch(["id"]);
+  
+  const onSubmit = React.useCallback(async (data: ShareFields) => {
+    setLoading(true);
+    try {
+      if (metadata.id === "") {
+        await actions.create(data);
+      }else{
+        await actions.update(metadata.id, data);
+      }
+      notificationSuccess({
+        message: "Saved ;)",
+        description: "Data has been saved successfully!",
+      });
+      handleOk(null);
+      reset();
+    } catch (error) {
+      notificationError({
+        message: "Error :(",
+        description: error.message,
+      });
+    }
+    setLoading(false);
+  }, [actions, handleOk, metadata.id, reset]);
 
   const handleSearch = async (value: string) => {
     setOptions(value ? await searchResult(value, setLoadingSymbols) : []);
@@ -154,7 +179,7 @@ const DialogShareForm = ({
   return (
     <Modal
       visible={visible}
-      title="Variable investment"
+      title="Share"
       centered
       onOk={handleOk}
       onCancel={(e) => {
@@ -174,7 +199,7 @@ const DialogShareForm = ({
         <Button
           key="submit"
           type="primary"
-          loading={false}
+          loading={loading}
           onClick={handleSubmit(onSubmit)}
         >
           Save

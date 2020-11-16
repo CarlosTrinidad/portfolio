@@ -39,12 +39,22 @@ const useMarketQuotes = () => {
         let result = response?.data?.quoteResponse?.result;
 
         if (undefined ?? result) {
-          window.localStorage.setItem("market.quotes", JSON.stringify(result));
+          let groupedResult: any = {};
           window.localStorage.setItem(
             "market.quotes.lastUpdate",
             moment().format("LLLL")
           );
-          setQuoteInfo(result);
+
+          for (let index = 0; index < result.length; index++) {
+            const element = result[index];
+            groupedResult[element.symbol] = element;
+          }
+          window.localStorage.setItem(
+            "market.quotes",
+            JSON.stringify(groupedResult)
+          );
+
+          setQuoteInfo(groupedResult);
         }
       })
       .catch((error) => {});

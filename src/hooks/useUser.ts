@@ -15,18 +15,14 @@ const useUser = (): IUser => {
   const auth = useAuth();
 
   useEffect(() => {
-    let mounted = true;
     const unlisten = auth.onAuthStateChanged((usr: any) => {
-      if (mounted) {
-        if (usr) {
-          setUser(usr);
-        } else {
-          setUser(null);
-        }
+      if (usr) {
+        setUser(usr);
+      } else {
+        setUser(null);
       }
     });
     return () => {
-      mounted = false;
       unlisten();
     };
   }, [auth]);

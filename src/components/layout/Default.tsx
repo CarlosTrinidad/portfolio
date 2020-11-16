@@ -1,14 +1,18 @@
-import { Col, Layout, Menu, Row, Typography } from "antd";
+import { Avatar, Col, Dropdown, Layout, Menu, Row, Typography } from "antd";
 import { Link, NavLink, useLocation, withRouter } from "react-router-dom";
 
 import { ReactComponent as Logo } from "../../components/common/Logo/logo.svg";
 import React from "react";
+import { UserOutlined } from "@ant-design/icons";
+import useLogout from "../../hooks/useLogout";
 
 const { Header, Content, Footer } = Layout;
 const { Text } = Typography;
 
 const Default: React.FC = ({ children }) => {
   let location = useLocation();
+  const logout = useLogout();
+  const handleLogout = React.useCallback(() => logout(), [logout]);
 
   return (
     <Layout>
@@ -44,6 +48,19 @@ const Default: React.FC = ({ children }) => {
               </Menu.Item>
               <Menu.Item key="/fixed" style={{ marginTop: "-2px" }}>
                 <NavLink to="/fixed">Fixed</NavLink>
+              </Menu.Item>
+              <Menu.Item key="account" style={{ marginTop: "-2px" }}>
+                <Dropdown
+                  overlay={
+                    <Menu>
+                      <Menu.Item danger onClick={handleLogout}>
+                        Log out
+                      </Menu.Item>
+                    </Menu>
+                  }
+                >
+                  <Avatar icon={<UserOutlined />} />
+                </Dropdown>
               </Menu.Item>
             </Menu>
           </Col>
