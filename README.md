@@ -32,7 +32,7 @@ A quick view
 </p>
 
 ## Who is using Portfolio?
-Portfolio is a personal project and it's probably only used by a couple of friends and I. If you want to try it, send me a message :)
+Portfolio is a personal project and it's probably only used by a couple of friends and me. If you want to try it, send me a message :)
 
 ## Try it [portfolio-live.web.app](https://portfolio-live.web.app)
 
