@@ -1,13 +1,20 @@
+import { Col, Input, Row, Table, Typography } from "antd";
 import { Controller, useForm } from "react-hook-form";
-import { Input, Table, Typography } from "antd";
 import { numberSorter, stringSorter } from "../../../utils/sort";
 import { toCurrency, toDecimal } from "../../../utils/formatable";
 
 import Item from "antd/lib/list/Item";
 import React from "react";
 import useAssetsContext from "../../../store/assets";
+import useExtra from "../../../store/extra";
 
 const { Text } = Typography;
+
+const selectorSetCustom = (state: any) => state.setCustom;
+const selectorCustom = (state: any) => state.custom;
+const selectorOriginal = (state: any) => state.original;
+const selectorExtra = (state: any) => state.extra;
+const selectorSetExtra = (state: any) => state.setExtra;
 
 const columns = [
   {
@@ -83,7 +90,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
   record,
   ...restProps
 }) => {
-  const { setCustom, original, custom } = useAssetsContext();
+  const setCustom = useAssetsContext(selectorSetCustom);
+  const original = useAssetsContext(selectorOriginal);
+  const custom = useAssetsContext(selectorCustom);
+  const extra = useExtra(selectorExtra);
+
   const [total, setTotal] = React.useState(0);
   const [editing, setEditing] = React.useState(false);
   const { control, reset } = useForm<RowFields>({
@@ -106,14 +117,14 @@ const EditableCell: React.FC<EditableCellProps> = ({
   React.useEffect(() => {
     let mounted = true;
     if (mounted) {
-      let total = original.reduce((prev, current) => prev + current.amount, 0);
-      setTotal(total);
+      let total = original.reduce((prev:any, current:any) => prev + current.amount, 0);
+      setTotal(total + Number(extra));
     }
 
     return () => {
       mounted = false;
     };
-  }, [original]);
+  }, [original, extra]);
 
   const toggleEdit = React.useCallback(() => {
     setEditing(!editing);
@@ -144,6 +155,27 @@ const EditableCell: React.FC<EditableCellProps> = ({
     },
     [custom, original, setCustom, toggleEdit, total]
   );
+
+  React.useEffect(() => {
+    let mounted = true;
+
+    if (mounted && extra !== 0) {
+      let newCustom: Item[] = [];
+      for (let index = 0; index < custom.length; index++) {
+        let element = custom[index];
+        let newAmount = total * (element.weights / 100);
+        element.amount = newAmount;
+        element.gainLoss = newAmount - original[index].amount;
+        newCustom.push(element);
+      }
+      setCustom(newCustom);
+    }
+
+    return () => {
+      mounted = false;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [total]);
 
   let childNode = children;
 
@@ -177,7 +209,9 @@ const EditableCell: React.FC<EditableCellProps> = ({
 };
 
 const CalculatorTable: React.FC = () => {
-  const { custom } = useAssetsContext();
+  const custom = useAssetsContext(selectorCustom);
+  const extra = useExtra(selectorExtra);
+  const setExtra = useExtra(selectorSetExtra);
 
   const cols = columns.map((col) => {
     if (!col.editable) {
@@ -194,52 +228,73 @@ const CalculatorTable: React.FC = () => {
     };
   });
 
+  const handleChangeExtra = React.useCallback(
+    ({ target: { value } }) => {
+      setExtra(value);
+    },
+    [setExtra]
+  );
+
   return (
-    <Table
-      rowKey="id"
-      columns={cols}
-      dataSource={custom}
-      pagination={false}
-      tableLayout="auto"
-      components={{
-        body: {
-          cell: EditableCell,
-        },
-      }}
-      bordered
-      summary={(pageData) => {
-        let totalAmount = 0;
-        let totalWeigth = 0;
-        let totalGainLoss = 0;
+    <>
+      <Row gutter={[16, 16]}>
+        <Col span={6}>
+          <Input
+            value={extra}
+            type="number"
+            onChange={handleChangeExtra}
+            placeholder="Amount to invest"
+          />
+        </Col>
+      </Row>
+      <Table
+        rowKey="id"
+        columns={cols}
+        dataSource={custom}
+        pagination={false}
+        tableLayout="auto"
+        components={{
+          body: {
+            cell: EditableCell,
+          },
+        }}
+        bordered
+        summary={(pageData) => {
+          let totalAmount = 0;
+          let totalWeigth = 0;
+          let totalGainLoss = 0;
 
-        pageData.forEach((item) => {
-          totalAmount += item.amount;
-          totalWeigth += item.weights;
-          totalGainLoss += item.gainLoss;
-        });
+          pageData.forEach((item) => {
+            totalAmount += item.amount;
+            totalWeigth += item.weights;
+            totalGainLoss += item.gainLoss;
+          });
 
-        return (
-          <Table.Summary.Row>
-            <Table.Summary.Cell index={1}>-</Table.Summary.Cell>
-            <Table.Summary.Cell index={2}>
-              {toCurrency(totalAmount)}
-            </Table.Summary.Cell>
-            <Table.Summary.Cell index={3}>
-              {toDecimal(totalWeigth)}%
-            </Table.Summary.Cell>
-            <Table.Summary.Cell index={4}>
-              {totalGainLoss < 0 && (
-                <Text type="danger">{toCurrency(totalGainLoss)}</Text>
-              )}
-              {totalGainLoss > 0 && (
-                <Text type="success">{toCurrency(totalGainLoss)}</Text>
-              )}
-              {totalGainLoss === 0 && <Text>{toCurrency(totalGainLoss)}</Text>}
-            </Table.Summary.Cell>
-          </Table.Summary.Row>
-        );
-      }}
-    />
+          return (
+            <Table.Summary.Row>
+              <Table.Summary.Cell index={1}>-</Table.Summary.Cell>
+              <Table.Summary.Cell index={2}>
+                {toCurrency(totalAmount)}
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={3}>
+                {toDecimal(totalWeigth)}%
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={4}>
+                {totalGainLoss < 0 && (
+                  <Text type="danger">{toCurrency(totalGainLoss)}</Text>
+                )}
+                {totalGainLoss > 0 && (
+                  <Text type="success">{toCurrency(totalGainLoss)}</Text>
+                )}
+                {totalGainLoss === 0 && (
+                  <Text>{toCurrency(totalGainLoss)}</Text>
+                )}
+              </Table.Summary.Cell>
+            </Table.Summary.Row>
+          );
+        }}
+      />
+    </>
   );
 };
 

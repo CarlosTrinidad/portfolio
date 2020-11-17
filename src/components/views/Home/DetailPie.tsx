@@ -3,8 +3,9 @@ import { DonutChart, registerTheme, useTheme } from "bizcharts";
 import React from "react";
 
 registerTheme("default", {
-  defaultColor: "#505000",
-  colors10: [
+  defaultColor: "#f29e4c",
+  colors: [
+    "#f29e4c",
     "#54478c",
     "#2c699a",
     "#048ba8",
@@ -14,7 +15,11 @@ registerTheme("default", {
     "#b9e769",
     "#efea5a",
     "#f1c453",
-    "#f29e4c",
+    "#606c38",
+    "#ffc6ff",
+    "#a0c4ff",
+    "#f77f00",
+    "#a77f00",
   ],
   geometries: {
     interval: {
@@ -30,62 +35,9 @@ registerTheme("default", {
   },
 });
 
-const DetailPie: React.FC = () => {
+const DetailPie = ({ data }: any) => {
   const [theme] = useTheme("default");
-
-  const data = [
-    {
-      type: "US Equities",
-      value: 10,
-      amount: 100,
-    },
-    {
-      type: "Money Market",
-      value: 10,
-      amount: 100,
-    },
-    {
-      type: "Real Estate Funds",
-      value: 10,
-      amount: 100,
-    },
-    {
-      type: "Developing World International Equities",
-      value: 10,
-      amount: 100,
-    },
-    {
-      type: "Goverment Bonds",
-      value: 10,
-      amount: 100,
-    },
-    {
-      type: "Emerging Market Equities",
-      value: 10,
-      amount: 100,
-    },
-    {
-      type: "1US Equities",
-      value: 10,
-      amount: 100,
-    },
-    {
-      type: "1Money Market",
-      value: 10,
-      amount: 100,
-    },
-    {
-      type: "1Real Estate Funds",
-      value: 10,
-      amount: 100,
-    },
-    {
-      type: "1Developing World International Equities",
-      value: 10,
-      amount: 100,
-    },
-  ];
-
+  
   return (
     <DonutChart
       theme={theme}

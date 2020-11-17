@@ -45,7 +45,7 @@ const Login: React.FC = () => {
 
   const onSubmit = async (data: LoginForm) => {
     try {
-      await loginUser(data, "/create");
+      await loginUser(data, "/");
       reset();
     } catch (error) {
       setServerError(!!error.message ? error.message : "");

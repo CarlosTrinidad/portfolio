@@ -1,18 +1,7 @@
 import { DonutChart } from "bizcharts";
 import React from "react";
 
-const GeneralPie: React.FC = () => {
-  const data = [
-    {
-      type: "Fixed",
-      value: 23,
-    },
-    {
-      type: "Variable",
-      value: 77,
-    },
-  ];
-
+const GeneralPie = ({ data }: any) => {
   return (
     <DonutChart
       data={data || []}

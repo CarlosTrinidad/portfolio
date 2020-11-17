@@ -1,6 +1,5 @@
-import { useFirestore, useFirestoreDocData } from "reactfire";
-
 import { useCallback } from "react";
+import { useFirestore } from "reactfire";
 import useUser from "./useUser";
 
 /**
@@ -17,11 +16,6 @@ interface IVariable {
   assetClass: string | null;
   purchaseDate: any;
 }
-
-export const useVariableData = (id: string): any => {
-  const variableRef = useFirestore().collection("variables").doc(id);
-  return useFirestoreDocData(variableRef);
-};
 
 export const useVariableActions = () => {
   const user = useUser();

@@ -10,10 +10,15 @@ import {
   Typography,
 } from "antd";
 import { Controller, useForm } from "react-hook-form";
+import {
+  notificationError,
+  notificationSuccess,
+} from "../../common/Notification/notification";
 
 import { create as CreateValidator } from "../../../validators/Bonds";
 import React from "react";
 import moment from "moment";
+import { useFixedActions } from "../../../hooks/useFixed";
 import { yupResolver } from "@hookform/resolvers";
 
 const { Text } = Typography;
@@ -21,7 +26,7 @@ const { Option } = Select;
 
 interface DialogBond {
   visible: boolean;
-  handleOk: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
+  handleOk: (e: React.MouseEvent<HTMLElement, MouseEvent> | null) => void;
   handleCancel: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
   defaultValues: {
     id: any;
@@ -101,14 +106,39 @@ const DialogBondForm = ({
     resolver: yupResolver(CreateValidator),
     defaultValues: defaultValues,
   });
-
+  
+  const [loading, setLoading] = React.useState<boolean>(false);
   const expirationFields = watch(["deadline", "startDate"]);
   const grossReturnFields = watch(["deadline", "rate", "amount"]);
+  const metadata = watch(["id"]);
 
-  const onSubmit = async (data: BondFields) => {
-    console.log(data);
-    reset();
-  };
+  const actions = useFixedActions();
+
+  const onSubmit = React.useCallback(
+    async (data: BondFields) => {
+      setLoading(true);
+      try {
+        if (metadata.id === "") {
+          await actions.create(data);
+        } else {
+          await actions.update(metadata.id, data);
+        }
+        notificationSuccess({
+          message: "Saved ;)",
+          description: "Data has been saved successfully!",
+        });
+        handleOk(null);
+        reset();
+      } catch (error) {
+        notificationError({
+          message: "Error :(",
+          description: error.message,
+        });
+      }
+      setLoading(false);
+    },
+    [actions, handleOk, metadata.id, reset]
+  );
 
   React.useEffect(() => {
     let mounted = true;
@@ -152,7 +182,7 @@ const DialogBondForm = ({
   return (
     <Modal
       visible={visible}
-      title="Fixed investment"
+      title="Bond"
       centered
       onOk={handleOk}
       onCancel={(e) => {
@@ -172,7 +202,7 @@ const DialogBondForm = ({
         <Button
           key="submit"
           type="primary"
-          loading={false}
+          loading={loading}
           onClick={handleSubmit(onSubmit)}
         >
           Save

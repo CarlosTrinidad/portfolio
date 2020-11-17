@@ -1,36 +1,69 @@
-import { DonutChart } from "bizcharts";
+import { DonutChart, registerTheme, useTheme } from "bizcharts";
+
 import React from "react";
+import useAssetsContext from "../../../store/assets";
+
+registerTheme("asset", {
+  defaultColor: "#003f5c",
+  colors10: [
+    "#003f5c",
+    "#2f4b7c",
+    "#665191",
+    "#a05195",
+    "#d45087",
+    "#f95d6a",
+    "#ff7c43",
+    "#ffa600",
+    "#f1c453",
+    "#f29e4c",
+  ],
+  geometries: {
+    interval: {
+      rect: {
+        default: {
+          style: { fill: "#6DC8EC", stroke: "red", fillOpacity: 0.95 },
+        },
+        active: { style: { stroke: "#5AD8A6", lineWidth: 1 } },
+        inactive: { style: { fillOpacity: 0.3, strokeOpacity: 0.3 } },
+        selected: {},
+      },
+    },
+  },
+});
+
+const selector = (state: any) => state.original;
 
 const AssetClassPie: React.FC = () => {
-  const data = [
-    {
-      type: "US Equities",
-      value: 33,
-    },
-    {
-      type: "Money Market",
-      value: 23.2,
-    },
-    {
-      type: "Real Estate Funds",
-      value: 13,
-    },
-    {
-      type: "Developing World International Equities",
-      value: 12.2,
-    },
-    {
-      type: "Goverment Bonds",
-      value: 9.8,
-    },
-    {
-      type: "Emerging Market Equities",
-      value: 8.9,
-    },
-  ];
+  const original = useAssetsContext(selector);
+  const [theme] = useTheme("asset");
 
+  const [data, setData] = React.useState([]);
+
+  React.useEffect(() => {
+    let mounted = true;
+
+    if (mounted) {
+      let formated: any = [];
+
+      for (let index = 0; index < original.length; index++) {
+        const element = original[index];
+        if (element.weights > 0) {
+          formated.push({
+            type: element.assetClass,
+            value: element.weights,
+          });
+        }
+      }
+
+      setData(formated);
+    }
+    return () => {
+      mounted = false;
+    };
+  }, [original]);
   return (
     <DonutChart
+      theme={theme}
       data={data || []}
       forceFit
       statistic={{

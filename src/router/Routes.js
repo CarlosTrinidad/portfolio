@@ -22,12 +22,12 @@ const Routes = () => {
             <Home />
           </DefaultLayout>
         </ProtectedRoute>
-        <ProtectedRoute path="/variable">
+        <ProtectedRoute path="/shares">
           <DefaultLayout>
             <Variable />
           </DefaultLayout>
         </ProtectedRoute>
-        <ProtectedRoute path="/fixed">
+        <ProtectedRoute path="/bonds">
           <DefaultLayout>
             <Fixed />
           </DefaultLayout>

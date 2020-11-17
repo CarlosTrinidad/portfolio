@@ -43,11 +43,11 @@ const Default: React.FC = ({ children }) => {
               <Menu.Item key="/" style={{ marginTop: "-2px" }}>
                 <NavLink to="/">Dashboard</NavLink>
               </Menu.Item>
-              <Menu.Item key="/variable" style={{ marginTop: "-2px" }}>
-                <NavLink to="/variable">Variable</NavLink>
+              <Menu.Item key="/shares" style={{ marginTop: "-2px" }}>
+                <NavLink to="/shares">Shares</NavLink>
               </Menu.Item>
-              <Menu.Item key="/fixed" style={{ marginTop: "-2px" }}>
-                <NavLink to="/fixed">Fixed</NavLink>
+              <Menu.Item key="/bonds" style={{ marginTop: "-2px" }}>
+                <NavLink to="/bonds">Bonds</NavLink>
               </Menu.Item>
               <Menu.Item key="account" style={{ marginTop: "-2px" }}>
                 <Dropdown

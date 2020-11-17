@@ -232,7 +232,7 @@ const Variable: React.FC = () => {
             description: item.description,
             symbol: item.symbol,
             shares: item.shares,
-            purchaseDate: moment(item.purchaseDate.toDate()),
+            purchaseDate: moment(item.purchaseDate.toDate()).format("YYYY-MM-DD"),
           });
         });
         setGroupBySymbol(agregated);
@@ -279,7 +279,7 @@ const Variable: React.FC = () => {
         shares: clicked.shares,
         buyPrice: clicked.buyPrice,
         assetClass: clicked.assetClass,
-        purchaseDate: clicked.purchaseDate,
+        purchaseDate: moment(clicked.purchaseDate, "YYYY-MM-DD"),
       });
       setOpenDialog(true);
     },
@@ -287,7 +287,6 @@ const Variable: React.FC = () => {
   );
 
   const deleteItem = React.useCallback((clicked) => {
-    console.log("delete", clicked);
     if (!clicked) {
       return;
     }
