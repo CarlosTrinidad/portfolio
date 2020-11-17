@@ -305,7 +305,7 @@ const Home: React.FC = () => {
               id: key,
               assetClass: element.assetClass,
               amount: element.amount,
-              weights: (element.amount / total) * 100,
+              weights: +(((element.amount / total) * 100).toFixed(2)),
               gainLoss: 0,
             };
             grouped.push(item);
