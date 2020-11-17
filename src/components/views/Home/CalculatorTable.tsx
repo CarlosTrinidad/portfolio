@@ -238,7 +238,7 @@ const CalculatorTable: React.FC = () => {
   return (
     <>
       <Row gutter={[16, 16]}>
-        <Col span={6}>
+        <Col span={8}>
           <Input
             value={extra}
             type="number"
