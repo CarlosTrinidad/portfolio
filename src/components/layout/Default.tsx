@@ -49,6 +49,9 @@ const Default: React.FC = ({ children }) => {
               <Menu.Item key="/bonds" style={{ marginTop: "-2px" }}>
                 <NavLink to="/bonds">Bonds</NavLink>
               </Menu.Item>
+              <Menu.Item key="/emergency-fund" style={{ marginTop: "-2px" }}>
+                <NavLink to="/emergency-fund">Emergency fund</NavLink>
+              </Menu.Item>
               <Menu.Item key="account" style={{ marginTop: "-2px" }}>
                 <Dropdown
                   overlay={

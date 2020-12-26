@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Switch } from "react-router-dom";
 
 import BasicLayout from "../components/layout/Basic";
 import DefaultLayout from "../components/layout/Default";
+import EmergencyFund from "../components/views/EmergencyFund/EmergencyFund";
 import Fixed from "../components/views/Fixed/Fixed";
 import Home from "../components/views/Home/Home";
 import Login from "../components/views/Login/Login";
@@ -30,6 +31,11 @@ const Routes = () => {
         <ProtectedRoute path="/bonds">
           <DefaultLayout>
             <Fixed />
+          </DefaultLayout>
+        </ProtectedRoute>
+        <ProtectedRoute path="/emergency-fund">
+          <DefaultLayout>
+            <EmergencyFund />
           </DefaultLayout>
         </ProtectedRoute>
         <PublicRoute path="/login">
