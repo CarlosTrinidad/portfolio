@@ -11,6 +11,7 @@ import {
   Typography,
 } from "antd";
 import { ExclamationCircleOutlined, ReloadOutlined } from "@ant-design/icons";
+import create, { State } from "zustand";
 import {
   notificationError,
   notificationWarning,
@@ -21,7 +22,6 @@ import { toCurrency, toDecimal, toInteger } from "../../../utils/formatable";
 import DialogShareForm from "./DialogShareForm";
 import FadeIn from "react-fade-in";
 import React from "react";
-import create from "zustand";
 import moment from "moment";
 import useMarketQuotes from "../../../hooks/useMarketQuotes";
 import useUser from "../../../hooks/useUser";
@@ -39,7 +39,7 @@ interface ShareForm {
   assetClass: null | string;
   purchaseDate: any;
 }
-interface SelectedStore {
+interface SelectedStore extends State {
   clicked: any;
   setClicked: any;
 }

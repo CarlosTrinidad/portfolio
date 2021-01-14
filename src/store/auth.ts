@@ -1,11 +1,11 @@
 import { auth } from "./../utils/firebase";
 import create from "zustand";
 
-interface Credentials {
+type Credentials = {
   email: string;
   password: string;
 }
-interface Error {
+type Error = {
   status: Number;
 }
 

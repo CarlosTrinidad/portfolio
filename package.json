@@ -27,7 +27,7 @@
     "react-scripts": "3.4.3",
     "reactfire": "^2.0.3",
     "yup": "^0.29.3",
-    "zustand": "^3.3.1"
+    "zustand": "3.0.1"
   },
   "scripts": {
     "start": "craco start",
