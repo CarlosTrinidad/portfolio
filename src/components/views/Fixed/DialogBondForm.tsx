@@ -325,6 +325,7 @@ const DialogBondForm = ({
                       Developing World International Equities
                     </Option>
                     <Option value="Money Market">Money Market </Option>
+                    <Option value="Cryptocurrencies">Cryptocurrencies</Option>
                   </Select>
                 }
                 name="assetClass"

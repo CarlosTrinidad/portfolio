@@ -30,3 +30,10 @@ export const toInteger = (value: number) => {
   });
   return formatter.format(value);
 };
+
+export const toPrecise = (value: number) => {
+  if (typeof value !== "number") {
+    value = Number(value);
+  }
+    return value.toPrecision(8);
+};

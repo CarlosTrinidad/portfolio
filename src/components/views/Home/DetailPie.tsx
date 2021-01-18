@@ -57,6 +57,7 @@ const DetailPie = ({ data }: any) => {
         },
       }}
       label={{
+        type: "outer",
         visible: true,
         style: {
           lineWidth: 1,
@@ -64,6 +65,14 @@ const DetailPie = ({ data }: any) => {
           fill: "#fff",
           fontWeight: 800,
         },
+        formatter: (text, item) => {
+          let textShort =
+            item._origin.type.length <= 7
+              ? item._origin.type
+              : item._origin.type.substring(0, 5) + "...";
+
+          return `${textShort} - ${text}`;
+        }
       }}
       meta={{
         value: {

@@ -11,6 +11,8 @@ import GeneralPie from "./GeneralPie";
 import React from "react";
 import { notificationError } from "../../common/Notification/notification";
 import useAssetsContext from "../../../store/assets";
+import { useCryptosActions } from "../../../hooks/useCryptos";
+import useCurrencyExchange from "../../../hooks/useCurrencyExchange";
 import { useFixedActions } from "../../../hooks/useFixed";
 import useMarketQuotes from "../../../hooks/useMarketQuotes";
 import useUser from "../../../hooks/useUser";
@@ -22,12 +24,15 @@ const selectorOriginal = (state: any) => state.setOriginal;
 const { Text } = Typography;
 const Home: React.FC = () => {
   const user = useUser();
+  const exchanger = useCurrencyExchange();
   const setCustom = useAssetsContext(selectorCustom);
   const setOriginal = useAssetsContext(selectorOriginal);
   const [groupBySymbol, setGroupBySymbol] = React.useState<any>({});
   const [groupByBond, setGroupByBond] = React.useState<any>({});
+  const [groupByCrypto, setGroupByCrypto] = React.useState<any>({});
   const [totalVariable, setTotalVariable] = React.useState(0);
   const [totalFixed, setTotalFixed] = React.useState(0);
+  const [totalCryptos, setTotalCryptos] = React.useState(0);
   const [generalLoading, setGeneralLoading] = React.useState(true);
   const [general, setGeneral] = React.useState<any>([]);
   const [detailLoading, setDetailLoading] = React.useState(true);
@@ -36,6 +41,7 @@ const Home: React.FC = () => {
 
   const variableActions = useVariableActions();
   const fixedActions = useFixedActions();
+  const cryptosActions = useCryptosActions();
   const [quoteInfo] = useMarketQuotes();
 
   const getVariable = React.useCallback(async () => {
@@ -127,24 +133,80 @@ const Home: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
+  const getCryptos = React.useCallback(async () => {
+    if (user === null) {
+      return;
+    }
+    if (!user.uid) {
+      return;
+    }
+
+    try {
+      let result = await cryptosActions.get(user.uid);
+      if (result !== undefined && !result.empty) {
+        let total = 0;
+        let grouped: any = {};
+
+        result.forEach((result) => {
+          let item = result.data();
+          if (!grouped.hasOwnProperty(item.symbol)) {
+            grouped[item.symbol] = {
+              name: item.symbol,
+              assetClass: item.assetClass,
+              totalPrice: 0,
+              amount: item.amount,
+            };
+          }else {
+            grouped[item.symbol]["amount"] += item.amount;
+          }
+        });
+
+        for (const symbol of Object.keys(grouped)) {
+          let marketPrice = 0;
+          let currencyResponse = await exchanger({
+            from: symbol.toUpperCase(),
+            to: "MXN",
+            q: "1",
+          });
+
+          if (currencyResponse) {
+            marketPrice = currencyResponse ? currencyResponse : 0;
+          }
+          grouped[symbol]["totalPrice"] += grouped[symbol].amount * marketPrice;
+          total += grouped[symbol].amount * marketPrice;
+        }
+        setTotalCryptos(total);
+        setGroupByCrypto(grouped);
+      }
+    } catch (error) {
+      setTotalCryptos(0);
+      notificationError({
+        message: "Error :(",
+        description: error.message,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, exchanger]);
+
   React.useEffect(() => {
     let mounted = true;
 
     if (mounted) {
       getFixed();
       getVariable();
+      getCryptos();
     }
 
     return () => {
       mounted = false;
     };
-  }, [getFixed, getVariable]);
+  }, [getFixed, getVariable, getCryptos]);
 
   React.useEffect(() => {
     let mounted = true;
 
     if (mounted) {
-      let total = totalVariable + totalFixed;
+      let total = totalVariable + totalFixed + totalCryptos;
       if (total > 0) {
         setGeneral([
           {
@@ -154,6 +216,10 @@ const Home: React.FC = () => {
           {
             type: "Bonds",
             value: (totalFixed / total) * 100,
+          },
+          {
+            type: "Cryptos",
+            value: (totalCryptos / total) * 100,
           },
         ]);
       } else {
@@ -165,7 +231,7 @@ const Home: React.FC = () => {
     return () => {
       mounted = false;
     };
-  }, [totalVariable, totalFixed]);
+  }, [totalVariable, totalFixed, totalCryptos]);
 
   React.useEffect(() => {
     let mounted = true;
@@ -173,11 +239,22 @@ const Home: React.FC = () => {
     if (mounted) {
       setDetailLoading(true);
       let detail = [];
-      let total = totalVariable + totalFixed;
+      let total = totalVariable + totalFixed + totalCryptos;
       if (total > 0) {
         for (const symbol in groupBySymbol) {
           if (groupBySymbol.hasOwnProperty(symbol)) {
             const element = groupBySymbol[symbol];
+            detail.push({
+              type: element.name,
+              value: (element.totalPrice / total) * 100,
+              amount: element.totalPrice,
+            });
+          }
+        }
+
+        for (const symbol in groupByCrypto) {
+          if (groupByCrypto.hasOwnProperty(symbol)) {
+            const element = groupByCrypto[symbol];
             detail.push({
               type: element.name,
               value: (element.totalPrice / total) * 100,
@@ -209,7 +286,14 @@ const Home: React.FC = () => {
     return () => {
       mounted = false;
     };
-  }, [groupBySymbol, groupByBond, totalFixed, totalVariable]);
+  }, [
+    groupBySymbol,
+    groupByBond,
+    groupByCrypto,
+    totalFixed,
+    totalVariable,
+    totalCryptos,
+  ]);
 
   React.useEffect(() => {
     let mounted = true;
@@ -257,6 +341,11 @@ const Home: React.FC = () => {
           id: "TreasuryInflationProtectedSecurities",
           assetClass: "Treasury Inflation Protected Securities",
         },
+        Cryptocurrencies: {
+          ...empty,
+          id: "Cryptocurrencies",
+          assetClass: "Cryptocurrencies",
+        },
         Other: {
           ...empty,
           id: "Other",
@@ -265,11 +354,26 @@ const Home: React.FC = () => {
       };
       let grouped: any = [];
       let grouped2: any = [];
-      let total = totalVariable + totalFixed;
+      let total = totalVariable + totalFixed + totalCryptos;
       if (total > 0) {
         for (const symbol in groupBySymbol) {
           if (groupBySymbol.hasOwnProperty(symbol)) {
             const element = groupBySymbol[symbol];
+            let key = element.assetClass.replace(/ /g, "");
+            if (!byClass.hasOwnProperty(key)) {
+              byClass[key] = {
+                assetClass: element.assetClass,
+                amount: element.totalPrice,
+              };
+            } else {
+              byClass[key]["amount"] += element.totalPrice;
+            }
+          }
+        }
+
+        for (const symbol in groupByCrypto) {
+          if (groupByCrypto.hasOwnProperty(symbol)) {
+            const element = groupByCrypto[symbol];
             let key = element.assetClass.replace(/ /g, "");
             if (!byClass.hasOwnProperty(key)) {
               byClass[key] = {
@@ -305,7 +409,7 @@ const Home: React.FC = () => {
               id: key,
               assetClass: element.assetClass,
               amount: element.amount,
-              weights: +(((element.amount / total) * 100).toFixed(2)),
+              weights: +((element.amount / total) * 100).toFixed(2),
               gainLoss: 0,
             };
             grouped.push(item);
@@ -330,10 +434,12 @@ const Home: React.FC = () => {
   }, [
     groupByBond,
     groupBySymbol,
+    groupByCrypto,
     setCustom,
     setOriginal,
     totalFixed,
     totalVariable,
+    totalCryptos,
   ]);
 
   return (

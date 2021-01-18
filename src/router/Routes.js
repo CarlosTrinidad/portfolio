@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Switch } from "react-router-dom";
 
 import BasicLayout from "../components/layout/Basic";
+import Cryptos from "../components/views/Cryptos/Cryptos";
 import DefaultLayout from "../components/layout/Default";
 import EmergencyFund from "../components/views/EmergencyFund/EmergencyFund";
 import Fixed from "../components/views/Fixed/Fixed";
@@ -36,6 +37,11 @@ const Routes = () => {
         <ProtectedRoute path="/emergency-fund">
           <DefaultLayout>
             <EmergencyFund />
+          </DefaultLayout>
+        </ProtectedRoute>
+        <ProtectedRoute path="/cryptos">
+          <DefaultLayout>
+            <Cryptos />
           </DefaultLayout>
         </ProtectedRoute>
         <PublicRoute path="/login">

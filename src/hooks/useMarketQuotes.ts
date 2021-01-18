@@ -28,7 +28,7 @@ const useMarketQuotes = () => {
     let symbols = quotes.join(",");
 
     yFinanceApi
-      .get("market/get-quotes", {
+      .get("market/v2/get-quotes", {
         params: {
           region: "US",
           lang: "en",

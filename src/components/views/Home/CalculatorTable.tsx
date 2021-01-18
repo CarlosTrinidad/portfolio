@@ -112,7 +112,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
     return () => {
       mounted = false;
     };
-  }, [record, reset]);
+  }, [record, reset, custom]);
 
   React.useEffect(() => {
     let mounted = true;
@@ -146,11 +146,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
           element.amount = newAmount;
           element.gainLoss = newAmount - original[index].amount;
         }
-
         newCustom.push(element);
       }
 
-      setCustom(newCustom);
+      setCustom([...newCustom]);
       toggleEdit();
     },
     [custom, original, setCustom, toggleEdit, total]
@@ -168,7 +167,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
         element.gainLoss = newAmount - original[index].amount;
         newCustom.push(element);
       }
-      setCustom(newCustom);
+      setCustom([...newCustom]);
     }
 
     return () => {

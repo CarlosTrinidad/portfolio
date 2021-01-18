@@ -60,18 +60,17 @@ const searchResult = async (
   let array: any[] = [];
   setLoadingSymbols(true);
   try {
-    let response = await yFinanceApi.get("/market/auto-complete", {
+    let response = await yFinanceApi.get("/auto-complete", {
       params: {
         lang: "en",
         region: "US",
-        query: query,
+        q: query,
       },
     });
     if (
-      response.data.hasOwnProperty("ResultSet") &&
-      response.data.ResultSet.hasOwnProperty("Result")
+      response.data.hasOwnProperty("quotes")
     ) {
-      let result = response.data.ResultSet.Result;
+      let result = response.data.quotes;
       array = result.map((res: any) => {
         return {
           value: res.symbol,
@@ -79,12 +78,12 @@ const searchResult = async (
             <>
               <Title level={5}>{res.symbol}</Title>
               <Paragraph>
-                <Text type="secondary">{res.name}</Text>
+                <Text type="secondary">{res.shortname}</Text>
               </Paragraph>
             </>
           ),
           description: res.typeDisp,
-          companyname: res.name,
+          companyname: res.shortname,
         };
       });
     }
@@ -332,6 +331,7 @@ const DialogShareForm = ({
                       Developing World International Equities
                     </Option>
                     <Option value="Money Market">Money Market </Option>
+                    <Option value="Cryptocurrencies">Cryptocurrencies</Option>
                   </Select>
                 }
                 name="assetClass"

@@ -33,8 +33,6 @@ const Default: React.FC = ({ children }) => {
   const [collapsed, setCollapsed] = React.useState(false);
   const screens = useBreakpoint();
 
-  console.log("🚀 ~ file: Default.tsx ~ line 27 ~ screens", screens);
-
   const collapseDrawer = React.useCallback(() => {
     setCollapsed(false);
   }, []);
@@ -106,6 +104,9 @@ const Default: React.FC = ({ children }) => {
                 </Menu.Item>
                 <Menu.Item key="/emergency-fund" style={{ marginTop: "-2px" }}>
                   <NavLink to="/emergency-fund">Emergency fund</NavLink>
+                </Menu.Item>
+                <Menu.Item key="/cryptos" style={{ marginTop: "-2px" }}>
+                  <NavLink to="/cryptos">Cryptocurrencies</NavLink>
                 </Menu.Item>
                 <Menu.Item key="account" style={{ marginTop: "-2px" }}>
                   <Dropdown
