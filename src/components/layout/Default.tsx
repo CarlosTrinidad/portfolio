@@ -168,6 +168,13 @@ const Default: React.FC = ({ children }) => {
             <NavLink to="/emergency-fund">Emergency fund</NavLink>
           </Menu.Item>
           <Menu.Item
+            key="/cryptos"
+            style={{ marginTop: "-2px" }}
+            onClick={collapseDrawer}
+          >
+            <NavLink to="/cryptos">Cryptocurrencies</NavLink>
+          </Menu.Item>
+          <Menu.Item
             key="account"
             style={{ marginTop: "-2px" }}
             danger
