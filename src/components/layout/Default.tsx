@@ -29,7 +29,7 @@ const Default: React.FC = ({ children }) => {
   let location = useLocation();
   const logout = useLogout();
   const handleLogout = React.useCallback(() => logout(), [logout]);
-  const [xs, setXS] = React.useState(false);
+  const [sm, setSm] = React.useState(false);
   const [collapsed, setCollapsed] = React.useState(false);
   const screens = useBreakpoint();
 
@@ -43,8 +43,8 @@ const Default: React.FC = ({ children }) => {
   React.useEffect(() => {
     let mounted = true;
     if (mounted) {
-      if (screens.hasOwnProperty("xs")) {
-        setXS(!!screens.xs);
+      if (screens.hasOwnProperty("md")) {
+        setSm(!screens.md);
       }
     }
     return () => {
@@ -71,7 +71,7 @@ const Default: React.FC = ({ children }) => {
               />
             </Link>
           </Col>
-          {xs && (
+          {sm && (
             <Col>
               <div style={{ margin: "0 1.5em" }}>
                 <Button
@@ -85,7 +85,7 @@ const Default: React.FC = ({ children }) => {
             </Col>
           )}
 
-          {!xs && (
+          {!sm && (
             <Col>
               <Menu
                 mode="horizontal"
