@@ -12,11 +12,11 @@ import {
 } from "antd";
 import { ExclamationCircleOutlined, ReloadOutlined } from "@ant-design/icons";
 import create, { State } from "zustand";
+import { dateSorter, numberSorter, stringSorter } from "../../../utils/sort";
 import {
   notificationError,
   notificationWarning,
 } from "../../common/Notification/notification";
-import { numberSorter, stringSorter } from "../../../utils/sort";
 import { toCurrency, toDecimal, toInteger } from "../../../utils/formatable";
 
 import DialogShareForm from "./DialogShareForm";
@@ -232,7 +232,9 @@ const Variable: React.FC = () => {
             description: item.description,
             symbol: item.symbol,
             shares: item.shares,
-            purchaseDate: moment(item.purchaseDate.toDate()).format("YYYY-MM-DD"),
+            purchaseDate: moment(item.purchaseDate.toDate()).format(
+              "YYYY-MM-DD"
+            ),
           });
         });
         setGroupBySymbol(agregated);
@@ -286,31 +288,34 @@ const Variable: React.FC = () => {
     [setFormValues, setOpenDialog]
   );
 
-  const deleteItem = React.useCallback((clicked) => {
-    if (!clicked) {
-      return;
-    }
-    Modal.confirm({
-      title: "Are you sure you want to permanently delete this item?",
-      icon: <ExclamationCircleOutlined />,
-      content: "This action can not be undone..",
-      onOk: async () => {
-        try {
-          await actions.destroy(clicked.id);
-          notificationWarning({
-            message: "Item deleted",
-            description: "The item has been deleted",
-          });
-          getData();
-        } catch (error) {
-          notificationError({
-            message: "Error :(",
-            description: error.message,
-          });
-        }
-      },
-    });
-  }, [actions, getData]);
+  const deleteItem = React.useCallback(
+    (clicked) => {
+      if (!clicked) {
+        return;
+      }
+      Modal.confirm({
+        title: "Are you sure you want to permanently delete this item?",
+        icon: <ExclamationCircleOutlined />,
+        content: "This action can not be undone..",
+        onOk: async () => {
+          try {
+            await actions.destroy(clicked.id);
+            notificationWarning({
+              message: "Item deleted",
+              description: "The item has been deleted",
+            });
+            getData();
+          } catch (error) {
+            notificationError({
+              message: "Error :(",
+              description: error.message,
+            });
+          }
+        },
+      });
+    },
+    [actions, getData]
+  );
 
   React.useEffect(() => {
     let mounted = true;
@@ -405,6 +410,7 @@ const Variable: React.FC = () => {
         key: "shares",
         render: (val: number) => toInteger(val),
         width: "50px",
+        sorter: (a: any, b: any) => numberSorter(a.shares, b.shares),
       },
       {
         title: "Buy price",
@@ -412,18 +418,21 @@ const Variable: React.FC = () => {
         key: "buyPrice",
         render: (val: number) => toCurrency(val),
         width: "50px",
+        sorter: (a: any, b: any) => numberSorter(a.buyPrice, b.buyPrice),
       },
       {
         title: "Asset class",
         dataIndex: "assetClass",
         key: "assetClass",
         width: "50px",
+        sorter: (a: any, b: any) => numberSorter(a.assetClass, b.assetClass),
       },
       {
         title: "Purchase date",
         dataIndex: "purchaseDate",
         key: "purchaseDate",
         width: "50px",
+        sorter: (a: any, b: any) => dateSorter(a.purchaseDate, b.purchaseDate),
       },
     ];
 
