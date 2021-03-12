@@ -11,11 +11,11 @@ import {
   Typography,
 } from "antd";
 import create, { State } from "zustand";
+import { dateSorter, numberSorter, stringSorter } from "../../../utils/sort";
 import {
   notificationError,
   notificationWarning,
 } from "../../common/Notification/notification";
-import { numberSorter, stringSorter } from "../../../utils/sort";
 import {
   toCurrency,
   toDecimal,
@@ -307,7 +307,7 @@ const Variable: React.FC = () => {
           let value = await exchanger({
             from: symbol.toUpperCase(),
             to: "MXN",
-            q: element.totalAmount.toString(),
+            q: "1",
           });
 
           if (value) {
@@ -375,6 +375,7 @@ const Variable: React.FC = () => {
         key: "amount",
         render: (val: number) => toPrecise(val),
         width: "50px",
+        sorter: (a: any, b: any) => numberSorter(a.amount, b.amount),
       },
       {
         title: "Buy price",
@@ -382,18 +383,21 @@ const Variable: React.FC = () => {
         key: "buyPrice",
         render: (val: number) => toCurrency(val),
         width: "50px",
+        sorter: (a: any, b: any) => numberSorter(a.buyPrice, b.buyPrice),
       },
       {
         title: "Asset class",
         dataIndex: "assetClass",
         key: "assetClass",
         width: "50px",
+        sorter: (a: any, b: any) => numberSorter(a.assetClass, b.assetClass),
       },
       {
         title: "Purchase date",
         dataIndex: "purchaseDate",
         key: "purchaseDate",
         width: "50px",
+        sorter: (a: any, b: any) => dateSorter(a.purchaseDate, b.purchaseDate),
       },
     ];
 
